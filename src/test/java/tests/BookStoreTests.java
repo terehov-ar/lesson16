@@ -12,6 +12,8 @@ import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 import static data.TestData.*;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static specs.LoginSpec.loginRequestSpec;
+import static specs.LoginSpec.loginResponseSpec;
 
 public class BookStoreTests extends TestBase {
 
@@ -22,18 +24,12 @@ public class BookStoreTests extends TestBase {
         authData.setUserName(login);
         authData.setPassword(password);
 
-        Response authResponse = given()
-                .log().uri()
-                .log().method()
-                .log().body()
-                .contentType(JSON)
+        Response authResponse = given(loginRequestSpec)
                 .body(authData)
                 .when()
-                .post("/Account/v1/Login")
+                .post()
                 .then()
-                .log().status()
-                .log().body()
-                .statusCode(200)
+                .spec(loginResponseSpec)
                 .extract().response();
 
         given()
