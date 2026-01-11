@@ -12,7 +12,6 @@ import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 import static data.TestData.*;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
-import static java.lang.String.format;
 
 public class BookStoreTests extends TestBase {
 
@@ -55,9 +54,8 @@ public class BookStoreTests extends TestBase {
         getWebDriver().manage().addCookie(new Cookie("expires", authResponse.path("expires")));
         getWebDriver().manage().addCookie(new Cookie("token", authResponse.path("token")));
 
-        BookDataModel bookData = new BookDataModel();
-        bookData.setUserId(authResponse.path("userId"));
-        bookData.setIsbn(isbn);
+        BookDataModel bookData = BookDataModel.createWithSingleIsbn(
+                authResponse.path("userId"), isbn);
 
         given()
                 .log().uri()
@@ -79,5 +77,6 @@ public class BookStoreTests extends TestBase {
         $$(".btn.btn-primary").findBy(text("Delete All Books")).click();
         $("#closeSmallModal-ok").click();
         $(".ReactTable").shouldNotHave(text("You Don't Know JS"));
+
     }
 }
