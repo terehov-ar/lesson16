@@ -3,7 +3,8 @@ package tests;
 import helpers.CookieHelper;
 import io.restassured.response.Response;
 import models.BookDataModel;
-import models.LoginBodyModel;
+import models.LoginRequestBodyModel;
+import models.LoginResponseBodyModel;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.Condition.text;
@@ -17,33 +18,33 @@ public class BookStoreTests extends TestBase {
     @Test
     void deleteBookFromUserList() {
 
-        LoginBodyModel authData = new LoginBodyModel();
+        LoginRequestBodyModel authData = new LoginRequestBodyModel();
         authData.setUserName(login);
         authData.setPassword(password);
 
-        Response authResponse = given(loginRequestSpec)
+        LoginResponseBodyModel authResponse = given(loginRequestSpec)
                 .body(authData)
                 .when()
                 .post()
                 .then()
                 .spec(loginResponseSpec)
-                .extract().response();
+                .extract().response().as(LoginResponseBodyModel.class);
 
         given(deleteBooksRequestSpec)
-                .header("Authorization", "Bearer " + authResponse.path("token"))
-                .queryParams("UserId", authResponse.path("userId"))
+                .header("Authorization", "Bearer " + authResponse.getToken())
+                .queryParams("UserId", authResponse.getUserId())
                 .when()
                 .delete()
                 .then()
                 .spec(deleteBooksResponseSpec);
 
-        CookieHelper.addAuthCookies(authResponse.path("userId"), authResponse.path("token"), authResponse.path("expires"));
+        CookieHelper.addAuthCookies(authResponse.getUserId(), authResponse.getToken(), authResponse.getExpires());
 
         BookDataModel bookData = BookDataModel.createWithSingleIsbn(
-                authResponse.path("userId"), isbn);
+                authResponse.getUserId(), isbn);
 
         given(addBookRequestSpec)
-                .header("Authorization", "Bearer " + authResponse.path("token"))
+                .header("Authorization", "Bearer " + authResponse.getToken())
                 .body(bookData)
                 .when()
                 .post()

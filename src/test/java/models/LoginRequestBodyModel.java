@@ -3,6 +3,6 @@ package models;
 import lombok.Data;
 
 @Data
-public class LoginBodyModel {
+public class LoginRequestBodyModel {
     String userName, password;
 }
