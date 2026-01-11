@@ -23,7 +23,7 @@ public class TestBase {
         RestAssured.baseURI = "https://demoqa.com";
         Configuration.remote = System.getProperty("remoteAddress");
         Configuration.browser = System.getProperty("browser", "chrome");
-        Configuration.browserVersion = System.getProperty("browserVersion");
+        Configuration.browserVersion = System.getProperty("browserVersion", "128");
         Configuration.browserSize = System.getProperty("browserSize", "1920x1080");
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("selenoid:options", Map.<String, Object>of(
@@ -36,5 +36,15 @@ public class TestBase {
     @BeforeEach
     void addListener() {
         SelenideLogger.addListener("allureListener", new AllureSelenide());
+    }
+
+    @AfterEach
+    void addAttachments() {
+        Attach.screenshotAs("Last screenshot");
+        Attach.pageSource();
+        Attach.browserConsoleLogs();
+        Attach.addVideo();
+
+        closeWebDriver();
     }
 }
