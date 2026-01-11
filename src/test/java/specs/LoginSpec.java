@@ -26,4 +26,33 @@ public class LoginSpec {
             .log(STATUS)
             .log(BODY)
             .build();
+
+    public static RequestSpecification deleteBooksRequestSpec = with()
+            .filter(withCustomTemplates())
+            .log().uri()
+            .log().method()
+            .log().body()
+            .log().headers()
+            .contentType(JSON)
+            .basePath("/bookStore/v1/Books");
+
+    public static ResponseSpecification deleteBooksResponseSpec = new ResponseSpecBuilder()
+            .expectStatusCode(204)
+            .log(STATUS)
+            .build();
+
+    public static RequestSpecification addBookRequestSpec = with()
+            .filter(withCustomTemplates())
+            .log().uri()
+            .log().method()
+            .log().body()
+            .log().headers()
+            .contentType(JSON)
+            .basePath("/bookStore/v1/Books");
+
+    public static ResponseSpecification addBookResponseSpec = new ResponseSpecBuilder()
+            .expectStatusCode(201)
+            .log(STATUS)
+            .log(BODY)
+            .build();
 }

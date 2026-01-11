@@ -12,8 +12,7 @@ import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 import static data.TestData.*;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
-import static specs.LoginSpec.loginRequestSpec;
-import static specs.LoginSpec.loginResponseSpec;
+import static specs.LoginSpec.*;
 
 public class BookStoreTests extends TestBase {
 
@@ -32,18 +31,13 @@ public class BookStoreTests extends TestBase {
                 .spec(loginResponseSpec)
                 .extract().response();
 
-        given()
-                .log().uri()
-                .log().method()
-                .log().body()
-                .contentType(JSON)
+        given(deleteBooksRequestSpec)
                 .header("Authorization", "Bearer " + authResponse.path("token"))
                 .queryParams("UserId", authResponse.path("userId"))
                 .when()
-                .delete("/BookStore/v1/Books")
+                .delete()
                 .then()
-                .log().status()
-                .statusCode(204);
+                .spec(deleteBooksResponseSpec);
 
         open("/favicon.ico");
         getWebDriver().manage().addCookie(new Cookie("userID", authResponse.path("userId")));
@@ -53,19 +47,13 @@ public class BookStoreTests extends TestBase {
         BookDataModel bookData = BookDataModel.createWithSingleIsbn(
                 authResponse.path("userId"), isbn);
 
-        given()
-                .log().uri()
-                .log().method()
-                .log().body()
-                .contentType(JSON)
+        given(addBookRequestSpec)
                 .header("Authorization", "Bearer " + authResponse.path("token"))
                 .body(bookData)
                 .when()
-                .post("/bookStore/v1/Books")
+                .post()
                 .then()
-                .log().status()
-                .log().body()
-                .statusCode(201);
+                .spec(addBookResponseSpec);
 
         open("/profile");
         $("#userName-value").shouldHave(text(login));
