@@ -7,8 +7,8 @@ import org.openqa.selenium.Cookie;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
-import static data.TestData.login;
-import static data.TestData.password;
+import static data.TestData.LOGIN;
+import static data.TestData.PASSWORD;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 
@@ -17,14 +17,14 @@ public class LoginTests extends TestBase {
     @Test
     void successfulLoginWithUiTest() {
         open("/login");
-        $("#userName").setValue(login);
-        $("#password").setValue(password).pressEnter();
-        $("#userName-value").shouldHave(text(login));
+        $("#userName").setValue(LOGIN);
+        $("#password").setValue(PASSWORD).pressEnter();
+        $("#userName-value").shouldHave(text(LOGIN));
     }
 
     @Test
     void successfulLoginWithApiTest() {
-        String authData = "{\"userName\":\"" + login + "\",\"password\":\"" + password + "\"}";
+        String authData = "{\"userName\":\"" + LOGIN + "\",\"password\":\"" + PASSWORD + "\"}";
 
         Response authResponse = given()
                 .log().uri()
@@ -46,6 +46,6 @@ public class LoginTests extends TestBase {
         getWebDriver().manage().addCookie(new Cookie("token", authResponse.path("token")));
 
         open("/profile");
-        $("#userName-value").shouldHave(text(login));
+        $("#userName-value").shouldHave(text(LOGIN));
     }
 }

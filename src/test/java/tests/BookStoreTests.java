@@ -7,9 +7,8 @@ import models.BookDataModel;
 import models.LoginRequestBodyModel;
 import models.LoginResponseBodyModel;
 import org.junit.jupiter.api.Test;
+import pages.ProfilePage;
 
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Selenide.*;
 import static data.TestData.*;
 import static io.qameta.allure.Allure.step;
 
@@ -20,10 +19,11 @@ public class BookStoreTests extends TestBase {
 
         LoginApi bookStoreApi = new LoginApi();
         BookApi bookApi = new BookApi();
+        ProfilePage profilePage = new ProfilePage();
 
         LoginRequestBodyModel authData = new LoginRequestBodyModel();
-        authData.setUserName(login);
-        authData.setPassword(password);
+        authData.setUserName(LOGIN);
+        authData.setPassword(PASSWORD);
 
         LoginResponseBodyModel authResponse = step("Авторизация на сайте через API", () ->
                 bookStoreApi.responseBodyModel(authData));
@@ -34,21 +34,20 @@ public class BookStoreTests extends TestBase {
         step("Добавление cookies", () ->
                 CookieHelper.addAuthCookies(authResponse.getUserId(), authResponse.getToken(), authResponse.getExpires()));
 
-        BookDataModel bookData = BookDataModel.createWithSingleIsbn(authResponse.getUserId(), isbn);
+        BookDataModel bookData = BookDataModel.createWithSingleIsbn(authResponse.getUserId(), ISBN);
 
         step("Добавление книги", () ->
                 bookApi.addBook(authResponse.getToken(), bookData));
 
         step("Проверка авторизации и наличии книги через UI", () -> {
-            open("/profile");
-            $("#userName-value").shouldHave(text(login));
-            $(".ReactTable").shouldHave(text("You Don't Know JS"));
+            profilePage.openPage()
+                    .assertUserLogin()
+                    .assertUserBook();
         });
 
         step("Удаление книги c проверкой через UI", () -> {
-            $$(".btn.btn-primary").findBy(text("Delete All Books")).click();
-            $("#closeSmallModal-ok").click();
-            $(".ReactTable").shouldNotHave(text("You Don't Know JS"));
+            profilePage.deleteBook()
+                    .assertBookList();
         });
     }
 }
